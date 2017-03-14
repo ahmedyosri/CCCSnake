@@ -4,15 +4,54 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
+/// <summary>
+/// Loads and parses Level files
+/// </summary>
 public class LevelLoader : MonoBehaviour
 {
+    /// <summary>
+    /// 2D int array that contains the parsed level
+    /// </summary>
     private List<List<int>> loadedLevel;
 
-    public int LevelLength { get { return loadedLevel.Count; } }
-    public int LevelWidth { get { return loadedLevel[0].Count; } }
+    /// <summary>
+    /// The loaded level length
+    /// </summary>
+    public int LevelLength
+    {
+        get
+        {
+            return loadedLevel == null ? 0 : loadedLevel.Count;
+        }
+    }
+
+    /// <summary>
+    /// The loaded level width
+    /// </summary>
+    public int LevelWidth
+    {
+        get
+        {
+            return loadedLevel == null ? 0 : loadedLevel[0].Count;
+        }
+    }
     
-    public List<List<int>> LoadedLevel { get { return loadedLevel; } }
+    /// <summary>
+    /// The loaded level data
+    /// </summary>
+    public List<List<int>> LoadedLevel
+    {
+        get
+        {
+            return loadedLevel;
+        }
+    }
     
+    /// <summary>
+    /// Loads and parses a level file from the resources, if failed, it loads a default map
+    /// </summary>
+    /// <param name="levelFilePath">Path of level file in Resources folder</param>
+    /// <returns>The loaded file data, can also be accessed from <see cref="LevelLoader.LoadedLevel"/> </returns>
     public List<List<int>> LoadLevel(string levelFilePath)
     {
         if (!TryLoadFromTextFile(levelFilePath))
@@ -47,6 +86,11 @@ public class LevelLoader : MonoBehaviour
         return loadedLevel;
     }
 
+    /// <summary>
+    /// Tries to load Level file from resources/FilePath, if the file didn't fit the level file pattern, it fail and returns false
+    /// </summary>
+    /// <param name="FilePath">Level file path to be loaded, file should be in Resrouces</param>
+    /// <returns>True if loading and parsing file successeded, false otherwise.</returns>
     bool TryLoadFromTextFile(string FilePath)
     {
         var levelFileData = Resources.Load(GameProperties.levelFilePath) as TextAsset;
@@ -59,6 +103,11 @@ public class LevelLoader : MonoBehaviour
 
         string[] LevelTokens = levelFileData.text.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries); ;
 
+        if (LevelTokens == null || LevelTokens.Length < 2)
+        {
+            print(string.Format("Error parsing level file : {0}", GameProperties.levelFilePath));
+            return false;
+        }
 
         int levelLength, levelWidth;
 

@@ -3,28 +3,59 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+/*
+ * The reason why I am referencing the pickup object directly here is that it would be replaced later on by a PickupsManager, which should handles the spawning of different pickups acress the gameplay
+ */
+
+/// <summary>
+/// Manages the whole gameplay session through Main scene
+/// </summary>
 public class GameplayManager : BasicStateMachine {
 
-    LevelLoader levelLoader;
+    /// <summary>
+    /// Loads and parses the level file
+    /// </summary>
+    private LevelLoader levelLoader;
 
+    /// <summary>
+    /// Reference to the environment manager which constructs the 3D World
+    /// </summary>
     [SerializeField]
     private EnvironmentManager environmentManager;
     
+    /// <summary>
+    /// Reference to the playgroundController which represnets the current state of the Game in 2D 
+    /// </summary>
     [SerializeField]
     private PlaygroundController playgroundController;
 
+    /// <summary>
+    /// Reference to the SnakeController, which draws the snake 3D Objects and listens to the input
+    /// </summary>
     [SerializeField]
     private SnakeController snakeController;
     
+    /// <summary>
+    /// Reference to the Fruit pickup-able object in the world
+    /// </summary>
     [SerializeField]
     private Pickup pickupObject;
 
+    /// <summary>
+    /// Particle System should play where the snake picks up a fruit
+    /// </summary>
     [SerializeField]
     private GameObject itemPickedupPSPrefab;
 
+    /// <summary>
+    /// Reference to the UI manager of the scene
+    /// </summary>
     [SerializeField]
     private UIManager uiManager;
 
+    /// <summary>
+    /// Reference to the AudioManager of the scene
+    /// </summary>
     [SerializeField]
     private AudioManager audioManager;
     
@@ -91,7 +122,7 @@ public class GameplayManager : BasicStateMachine {
                 playgroundController.UpdateBoard(snakeController.GrabNextDirection());
                 snakeController.DrawSnakeObjects(playgroundController.snakeGridTiles);
 
-                var pickupPosition = playgroundController.pickupPosition;
+                var pickupPosition = playgroundController.pickupPosition.tilePosition;
                 pickupObject.transform.localPosition = Vector3.right * pickupPosition.x + Vector3.back * pickupPosition.z;
 
                 break;
@@ -149,6 +180,12 @@ public class GameplayManager : BasicStateMachine {
     void OnItemPickedup()
     {
         Instantiate(itemPickedupPSPrefab, pickupObject.transform.position, Quaternion.identity);
+
+        if (pickupObject.OnItemPickedup != null)
+        {
+            pickupObject.OnItemPickedup.Invoke();
+        }
+
         GameProperties.playerScore += pickupObject.itemScore * GameProperties.gameLevel;
         snakeController.SpeedupSnake(pickupObject.speedBonus * GameProperties.gameLevel);
         uiManager.Score = Utils.GetScoreString();

@@ -1,33 +1,26 @@
 fileFormatVersion: 2
-guid: 93c37bf59b390a9408f1f2e7db753b39
-labels:
-- Prop
-- Terrain
+guid: 0b4bea3108a8a3b4ba4174f84f676fab
+timeCreated: 1489493197
+licenseType: Free
 ModelImporter:
   serializedVersion: 19
   fileIDToRecycleName:
-    100000: rock_04
-    100002: //RootNode
-    100004: Rock_04
-    100006: Rock_04_collider
-    400000: rock_04
-    400002: //RootNode
-    400004: Rock_04
-    400006: Rock_04_collider
-    2300000: rock_04
-    2300002: Rock_04
-    2300004: Rock_04_collider
-    3300000: rock_04
-    3300002: Rock_04
-    3300004: Rock_04_collider
-    4300000: rock_04
-    4300002: Rock_04
-    4300004: Rock_04_collider
-    9500000: //RootNode
+    100000: //RootNode
+    100002: Rock_04
+    100004: Rock_04_collider
+    400000: //RootNode
+    400002: Rock_04
+    400004: Rock_04_collider
+    2300000: Rock_04
+    2300002: Rock_04_collider
+    3300000: Rock_04
+    3300002: Rock_04_collider
+    4300000: Rock_04
+    4300002: Rock_04_collider
   materials:
     importMaterials: 0
     materialName: 0
-    materialSearch: 0
+    materialSearch: 1
   animations:
     legacyGenerateAnimations: 4
     bakeSimulation: 0
@@ -62,11 +55,11 @@ ModelImporter:
     secondaryUVAreaDistortion: 15.000001
     secondaryUVHardAngle: 88
     secondaryUVPackMargin: 4
-    useFileScale: 0
+    useFileScale: 1
   tangentSpace:
     normalSmoothAngle: 60
     normalImportMode: 0
-    tangentImportMode: 4
+    tangentImportMode: 3
   importAnimation: 1
   copyAvatar: 0
   humanDescription:
@@ -84,7 +77,7 @@ ModelImporter:
     rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
     hasTranslationDoF: 0
     hasExtraRoot: 0
-    skeletonHasParents: 0
+    skeletonHasParents: 1
   lastHumanDescriptionAvatarSource: {instanceID: 0}
   animationType: 0
   humanoidOversampling: 1

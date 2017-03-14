@@ -3,36 +3,82 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// Note: the key to having a smooth walking snake is the Straight Animation loop, 
+// which moves the (Bomb object) from last tile position to the new tile position in the same amount of time needed between two UpdateBoard calls
+// Also Birth Animation is played by newly added tiles
+
+/// <summary>
+/// Controls the snake 3D Object running in the world
+/// </summary>
 public class SnakeController : MonoBehaviour
 {
+    /// <summary>
+    /// Animation that moves the (Bomb Object) a unit during the time unit
+    /// </summary>
     const string StraightAnimation = "BombStraight";
 
+    /// <summary>
+    /// Animation that give a birth from ground look to the (Bomb Object) during the time unit
+    /// </summary>
     const string BirthAnimation = "BombBirth";
 
+    /// <summary>
+    /// List of gameobjects where each one represents a SnakeTile Gameobject
+    /// </summary>
     private List<GameObject> snakeTiles;
 
+    /// <summary>
+    /// The current Direction of the Snake
+    /// </summary>
     private Direction snakeDirection;
     
+    /// <summary>
+    /// The stored directions from player, in case he quickly pressed two very quick sequel directions
+    /// </summary>
     private Queue<Direction> registeredDirections;
     
+    /// <summary>
+    /// Reference to prefab constructing a snake tile
+    /// </summary>
     [SerializeField]
     private GameObject snakeTilePrefab;
 
+    /// <summary>
+    /// Reference to the Snake First tile Prefab
+    /// </summary>
     [SerializeField]
     private GameObject snakeTileHeadPrefab;
     
+    /// <summary>
+    /// Reference to the InputManager
+    /// </summary>
     [SerializeField]
     GameplayInputManager inputManager;
 
+    /// <summary>
+    /// Reference to the ExplosionPrefab
+    /// </summary>
     [SerializeField]
     GameObject explosionPrefab;
 
-    public float snakeSpeed = 1.0f;
+    /// <summary>
+    /// The current snake speed
+    /// </summary>
+    private float snakeSpeed = 1.0f;
 
-    public int snakeDestructionSpeed = 4;
-
+    /// <summary>
+    /// The current snake speed
+    /// </summary>
     public float SnakeSpeed { get { return snakeSpeed; } }
 
+    /// <summary>
+    /// While playing the death animation, how many tile should be destroyed within a second
+    /// </summary>
+    public int snakeDestructionSpeed = 4;
+
+    /// <summary>
+    /// Action fires when Snake destroying animation is completed
+    /// </summary>
     public Action OnSnakeDestroyed;
 
 
@@ -50,6 +96,10 @@ public class SnakeController : MonoBehaviour
         inputManager.OnMoveUp += MoveUp;
     }
     
+    /// <summary>
+    /// Initializes the snake, currently it initializes the snake direction only
+    /// </summary>
+    /// <param name="initialSnakeDirection"></param>
     public void InitSnake(Direction initialSnakeDirection)
     {
         snakeDirection = initialSnakeDirection;
@@ -75,6 +125,9 @@ public class SnakeController : MonoBehaviour
         ChangeDirectionTo(Direction.Down);
     }
 
+    /// <summary>
+    /// Registers newDirection to the queue of registeredDirections, also it filters wrong Directions (i.e you cannot go in the opposite direction)
+    /// </summary>
     void ChangeDirectionTo(Direction newDirection)
     {
         if (registeredDirections == null)
@@ -115,6 +168,10 @@ public class SnakeController : MonoBehaviour
         registeredDirections.Enqueue(newDirection);
     }
 
+    /// <summary>
+    /// Fetches the next registered direction
+    /// </summary>
+    /// <returns></returns>
     public Direction GrabNextDirection()
     {
         if (registeredDirections != null && registeredDirections.Count > 0)
@@ -128,25 +185,35 @@ public class SnakeController : MonoBehaviour
         }
     }
     
+    /// <summary>
+    /// Speeds up the snake by speedBonus
+    /// </summary>
     public void SpeedupSnake(float speedBonus)
     {
         snakeSpeed += Mathf.Abs(speedBonus);
     }
 
+    /// <summary>
+    /// Receives a List of tiles from GameplayManager to draw the 3D Snake based on it,
+    /// It adds new SnakeTiles upon need (whether snake has eaten a fruit or at the beginning of a new game)
+    /// Also, it Handles the animation of each tile based on the context
+    /// </summary>
+    /// <param name="snakeGridTiles"></param>
     public void DrawSnakeObjects(List<Tile> snakeGridTiles)
     {
         bool firstTime = (snakeGridTiles.Count == 0);
-        bool newTile = (snakeGridTiles.Count != snakeTiles.Count);
+        bool snakeExtended = (snakeGridTiles.Count != snakeTiles.Count);
 
         for (int i = 0; i < snakeGridTiles.Count; i++)
         {
             if (snakeTiles.Count < snakeGridTiles.Count)
             {
+                // Add snakehead prefab if it is the first tile ever
                 if (snakeTiles.Count == 0)
                 {
                     snakeTiles.Add(Instantiate(snakeTileHeadPrefab, transform));
                 }
-                else
+                else // Add regular snake tile
                 {
                     snakeTiles.Add(Instantiate(snakeTilePrefab, transform));
                 }
@@ -161,18 +228,21 @@ public class SnakeController : MonoBehaviour
             var animatorComp = snakeTiles[i].GetComponent<Animator>();
             animatorComp.speed = snakeSpeed;
 
-            // The defaults is to play the Straight Animation
+            // Play Birth animation for all tiles if the first time, otherwise play Straight Animation
             animatorComp.Play(firstTime ? BirthAnimation : StraightAnimation, 0, 0);
         }
 
-        // Except for a newly added snake tile, override it with the Birth Animation
-        if (newTile)
+        // Except for a newly added snake tail tile, Run Birth Animation
+        if (snakeExtended)
         {
             snakeTiles[snakeGridTiles.Count - 1].GetComponent<Animator>().Play(BirthAnimation, 0, 0);
         }
         
     }
 
+    /// <summary>
+    /// Starts the death animation for the snake
+    /// </summary>
     public void DestroySnake()
     {
         StartCoroutine(DestroySnakeCoroutine());
